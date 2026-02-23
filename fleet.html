@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>NerdMiner Control Panel</title>
+<style>
+body{
+  margin:0;
+  background:#0b1220;
+  color:#e5e7eb;
+  font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;
+}
+
+.container{
+  max-width:1200px;
+  margin:60px auto;
+  padding:0 20px;
+}
+
+h1{
+  font-weight:600;
+  margin-bottom:30px;
+  letter-spacing:.5px;
+}
+
+.wallet-bar{
+  display:flex;
+  gap:10px;
+  margin-bottom:30px;
+}
+
+.wallet-bar input{
+  flex:1;
+  padding:12px 14px;
+  background:#111827;
+  border:1px solid #1f2937;
+  border-radius:8px;
+  color:#fff;
+  outline:none;
+}
+
+.wallet-bar input:focus{
+  border-color:#22c55e;
+  box-shadow:0 0 10px rgba(34,197,94,.4);
+}
+
+.wallet-bar button{
+  padding:12px 18px;
+  background:#22c55e;
+  border:none;
+  border-radius:8px;
+  color:#000;
+  font-weight:600;
+  cursor:pointer;
+  transition:.2s;
+}
+
+.wallet-bar button:hover{
+  background:#16a34a;
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:18px;
+  margin-bottom:30px;
+}
+
+.card{
+  background:#111827;
+  border:1px solid #1f2937;
+  border-radius:12px;
+  padding:22px;
+  box-shadow:0 0 15px rgba(34,197,94,.05);
+}
+
+.card h3{
+  font-size:12px;
+  color:#9ca3af;
+  margin:0;
+}
+
+.card p{
+  margin:10px 0 0;
+  font-size:22px;
+  font-weight:600;
+  color:#22c55e;
+}
+
+.total{
+  font-size:18px;
+  margin-bottom:30px;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  background:#111827;
+  border-radius:12px;
+  overflow:hidden;
+  border:1px solid #1f2937;
+}
+
+th,td{
+  padding:14px;
+  text-align:left;
+}
+
+th{
+  font-size:12px;
+  color:#9ca3af;
+  font-weight:500;
+  border-bottom:1px solid #1f2937;
+}
+
+tr:not(:last-child) td{
+  border-bottom:1px solid #1f2937;
+}
+
+.offline{
+  color:#ef4444;
+  font-weight:600;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<h1>🚀 NerdMiner Control Panel</h1>
+
+<div class="wallet-bar">
+  <input id="walletInput" placeholder="Enter wallet address..." />
+  <button onclick="setWallet()">Load</button>
+</div>
+
+<div class="stats">
+  <div class="card"><h3>Best Difficulty</h3><p id="bestDiff">--</p></div>
+  <div class="card"><h3>Network Difficulty</h3><p id="netDiff">--</p></div>
+  <div class="card"><h3>Network Hashrate</h3><p id="netHash">--</p></div>
+  <div class="card"><h3>Block Height</h3><p id="blockHeight">--</p></div>
+  <div class="card"><h3>BTC Price</h3><p id="btcPrice">--</p></div>
+</div>
+
+<div class="total">
+Total Fleet Hashrate: <span id="totalHash">--</span>
+</div>
+
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Session</th>
+<th>Hashrate</th>
+<th>Best Diff</th>
+<th>Uptime</th>
+<th>Last Seen</th>
+</tr>
+</thead>
+<tbody id="workersTable"></tbody>
+</table>
+
+</div>
+
+<script>
+let wallet = localStorage.getItem("wallet") || "";
+
+if(wallet){
+  document.getElementById("walletInput").value = wallet;
+  loadData();
+}
+
+document.getElementById("walletInput").addEventListener("keydown", e=>{
+  if(e.key==="Enter") setWallet();
+});
+
+function setWallet(){
+  wallet=document.getElementById("walletInput").value.trim();
+  if(!wallet) return;
+  localStorage.setItem("wallet",wallet);
+  loadData();
+}
+
+function formatHash(hr){
+  hr=parseFloat(hr);
+  if(hr>=1e6) return (hr/1e6).toFixed(2)+" MH/s";
+  if(hr>=1e3) return (hr/1e3).toFixed(2)+" KH/s";
+  return hr.toFixed(2)+" H/s";
+}
+
+function formatNetworkHash(hr){
+  hr=parseFloat(hr);
+  if(hr>=1e18) return (hr/1e18).toFixed(2)+" EH/s";
+  if(hr>=1e15) return (hr/1e15).toFixed(2)+" PH/s";
+  if(hr>=1e12) return (hr/1e12).toFixed(2)+" TH/s";
+  return hr.toFixed(2)+" H/s";
+}
+
+function formatDiff(diff){
+  diff=parseFloat(diff);
+  if(diff>=1e12) return (diff/1e12).toFixed(2)+" T";
+  if(diff>=1e9) return (diff/1e9).toFixed(2)+" B";
+  return diff.toFixed(2);
+}
+
+function formatTime(sec){
+  const m=Math.floor(sec/60);
+  const s=sec%60;
+  return `${m}m ${s}s`;
+}
+
+async function loadBTC(){
+  try{
+    const res = await fetch(
+      "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd"
+    );
+    const data = await res.json();
+    document.getElementById("btcPrice").innerText =
+      "$" + data.bitcoin.usd.toLocaleString();
+  }catch(e){
+    document.getElementById("btcPrice").innerText="--";
+    console.log("BTC error:", e);
+  }
+}
+
+async function loadData(){
+  if(!wallet) return;
+
+  const CLIENT=`https://public-pool.io:40557/api/client/${wallet}`;
+  const NETWORK=`https://public-pool.io:40557/api/network`;
+
+  try{
+    const c=await fetch(CLIENT).then(r=>r.json());
+    const n=await fetch(NETWORK).then(r=>r.json());
+
+    document.getElementById("bestDiff").innerText =
+      Math.ceil(parseFloat(c.bestDifficulty)*100)/100;
+
+    document.getElementById("netDiff").innerText=formatDiff(n.difficulty);
+    document.getElementById("netHash").innerText=formatNetworkHash(n.networkhashps);
+    document.getElementById("blockHeight").innerText=n.blocks;
+
+    let total=0;
+    const table=document.getElementById("workersTable");
+    table.innerHTML="";
+
+    c.workers.forEach(w=>{
+      const hr=parseFloat(w.hashRate);
+      total+=hr;
+
+      const start=new Date(w.startTime);
+      const last=new Date(w.lastSeen);
+      const now=new Date();
+
+      const uptime=Math.floor((now-start)/1000);
+      const lastSeen=Math.floor((now-last)/1000);
+
+      const row=document.createElement("tr");
+      row.innerHTML=`
+        <td>${w.name}</td>
+        <td>${w.sessionId}</td>
+        <td>${formatHash(hr)}</td>
+        <td>${w.bestDifficulty}</td>
+        <td>${formatTime(uptime)}</td>
+        <td class="${lastSeen>90?'offline':''}">
+          ${formatTime(lastSeen)} ago
+        </td>
+      `;
+      table.appendChild(row);
+    });
+
+    document.getElementById("totalHash").innerText=formatHash(total);
+
+  }catch(err){
+    console.log("Data error:", err);
+  }
+}
+
+setInterval(loadData,10000);
+loadBTC();
+setInterval(loadBTC,60000);
+</script>
+
+</body>
+</html>
