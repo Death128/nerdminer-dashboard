@@ -2,284 +2,641 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>NerdMiner Control Panel</title>
-<style>
-body{
-  margin:0;
-  background:#0b1220;
-  color:#e5e7eb;
-  font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;
-}
+<title>NerdMiner Lottery Dashboard</title>
 
-.container{
-  max-width:1200px;
-  margin:60px auto;
-  padding:0 20px;
-}
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-h1{
-  font-weight:600;
-  margin-bottom:30px;
-  letter-spacing:.5px;
-}
-
-.wallet-bar{
-  display:flex;
-  gap:10px;
-  margin-bottom:30px;
-}
-
-.wallet-bar input{
-  flex:1;
-  padding:12px 14px;
-  background:#111827;
-  border:1px solid #1f2937;
-  border-radius:8px;
-  color:#fff;
-  outline:none;
-}
-
-.wallet-bar input:focus{
-  border-color:#22c55e;
-  box-shadow:0 0 10px rgba(34,197,94,.4);
-}
-
-.wallet-bar button{
-  padding:12px 18px;
-  background:#22c55e;
-  border:none;
-  border-radius:8px;
-  color:#000;
-  font-weight:600;
-  cursor:pointer;
-  transition:.2s;
-}
-
-.wallet-bar button:hover{
-  background:#16a34a;
-}
-
-.stats{
-  display:grid;
-  grid-template-columns:repeat(5,1fr);
-  gap:18px;
-  margin-bottom:30px;
-}
-
-.card{
-  background:#111827;
-  border:1px solid #1f2937;
-  border-radius:12px;
-  padding:22px;
-  box-shadow:0 0 15px rgba(34,197,94,.05);
-}
-
-.card h3{
-  font-size:12px;
-  color:#9ca3af;
-  margin:0;
-}
-
-.card p{
-  margin:10px 0 0;
-  font-size:22px;
-  font-weight:600;
-  color:#22c55e;
-}
-
-.total{
-  font-size:18px;
-  margin-bottom:30px;
-}
-
-table{
-  width:100%;
-  border-collapse:collapse;
-  background:#111827;
-  border-radius:12px;
-  overflow:hidden;
-  border:1px solid #1f2937;
-}
-
-th,td{
-  padding:14px;
-  text-align:left;
-}
-
-th{
-  font-size:12px;
-  color:#9ca3af;
-  font-weight:500;
-  border-bottom:1px solid #1f2937;
-}
-
-tr:not(:last-child) td{
-  border-bottom:1px solid #1f2937;
-}
-
-.offline{
-  color:#ef4444;
-  font-weight:600;
-}
-</style>
 </head>
-<body>
 
-<div class="container">
+<body class="bg-slate-950 text-gray-200 font-sans min-h-screen flex items-center justify-center">
+<div id="view-overview" class="view-section w-full max-w-6xl mt-10 px-4">
 
-<h1>🚀 NerdMiner Control Panel</h1>
+<!-- Header -->
+<div class="flex justify-between items-center mb-6">
+    <div class="flex items-center gap-4">
+      <button onclick="toggleSidebar()"
+              class="text-gray-400 hover:text-white text-2xl">
+        ☰
+      </button>
+      <h1 class="text-2xl font-semibold">🎰 NerdMiner Lottery Dashboard</h1>
+    </div>
 
-<div class="wallet-bar">
-  <input id="walletInput" placeholder="Enter wallet address..." />
-  <button onclick="setWallet()">Load</button>
+  <div class="flex items-center gap-2 text-sm text-gray-400">
+    <div id="statusDot" class="w-2.5 h-2.5 rounded-full bg-red-500"></div>
+    <span id="statusText">Unknown</span>
+  </div>
 </div>
 
-<div class="stats">
-  <div class="card"><h3>Best Difficulty</h3><p id="bestDiff">--</p></div>
-  <div class="card"><h3>Network Difficulty</h3><p id="netDiff">--</p></div>
-  <div class="card"><h3>Network Hashrate</h3><p id="netHash">--</p></div>
-  <div class="card"><h3>Block Height</h3><p id="blockHeight">--</p></div>
-  <div class="card"><h3>BTC Price</h3><p id="btcPrice">--</p></div>
+<!-- Wallet Bar -->
+<div class="flex gap-3 mb-6">
+  <input id="walletInput"
+         class="flex-1 bg-slate-900 border border-slate-800 rounded-lg px-4 py-2 outline-none focus:border-green-500"
+         placeholder="Enter wallet address...">
+
+  <button onclick="setWallet()" class="bg-green-500 text-black px-4 py-2 rounded-lg font-semibold">Load</button>
+  <button onclick="checkMinerConnection()" class="bg-amber-500 text-black px-4 py-2 rounded-lg font-semibold">Check AP</button>
+  <button onclick="openSetup()" class="bg-blue-600 px-4 py-2 rounded-lg font-semibold">Miner Setup</button>
+  <button onclick="openPortal()" class="bg-red-500 px-4 py-2 rounded-lg font-semibold">Open Portal</button>
 </div>
 
-<div class="total">
-Total Fleet Hashrate: <span id="totalHash">--</span>
+<!-- Stats Grid -->
+<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 mb-6">
+
+  <div class="bg-slate-900/60 backdrop-blur-md border border-slate-800/50 rounded-2xl p-5 shadow-xl shadow-black/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-black/40">
+    <div class="text-xs text-gray-400">Total Hashrate</div>
+    <div id="totalHash" class="text-lg font-semibold text-green-400 mt-1">--</div>
+  </div>
+
+  <div class="bg-slate-900/60 backdrop-blur-md border border-slate-800/50 rounded-2xl p-5 shadow-xl shadow-black/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-black/40">
+    <div class="text-xs text-gray-400">Best Difficulty</div>
+    <div id="bestDiff" class="text-lg font-semibold text-green-400 mt-1">--</div>
+  </div>
+
+  <div class="bg-slate-900/60 backdrop-blur-md border border-slate-800/50 rounded-2xl p-5 shadow-xl shadow-black/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-black/40">
+    <div class="text-xs text-gray-400">Block Height</div>
+    <div id="blockHeight" class="text-lg font-semibold text-green-400 mt-1">--</div>
+  </div>
+
+  <div class="bg-slate-900/60 backdrop-blur-md border border-slate-800/50 rounded-2xl p-5 shadow-xl shadow-black/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-black/40">
+    <div class="text-xs text-gray-400">Workers</div>
+    <div id="workerCount" class="text-lg font-semibold text-green-400 mt-1">--</div>
+  </div>
+
+  <div class="bg-slate-900/60 backdrop-blur-md border border-slate-800/50 rounded-2xl p-5 shadow-xl shadow-black/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-black/40">
+    <div class="text-xs text-gray-400">BTC Price</div>
+    <div id="btcPrice" class="text-lg font-semibold text-green-400 mt-1">--</div>
+  </div>
+
+  <div class="bg-slate-900/60 backdrop-blur-md border border-slate-800/50 rounded-2xl p-5 shadow-xl shadow-black/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-black/40">
+    <div class="text-xs text-gray-400">Network Difficulty</div>
+    <div id="networkDiffCompact" class="text-lg font-semibold text-green-400 mt-1">--</div>
+  </div>
+
+  <div class="bg-slate-900/60 backdrop-blur-md border border-slate-800/50 rounded-2xl p-5 shadow-xl shadow-black/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-black/40">
+    <div class="text-xs text-gray-400">Avg Hash / Active</div>
+    <div id="avgHash" class="text-lg font-semibold text-green-400 mt-1">--</div>
+  </div>
+
+  <div class="bg-slate-900/60 backdrop-blur-md border border-slate-800/50 rounded-2xl p-5 shadow-xl shadow-black/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-black/40">
+    <div class="text-xs text-gray-400">Stability</div>
+    <div id="stabilityScore" class="text-lg font-semibold mt-1">--</div>
+  </div>
+
+</div>
+<div class="fixed inset-0 -z-20 bg-gradient-to-b from-slate-900 via-slate-950 to-black"></div>
+<canvas id="hashChart" class="bg-slate-900/60 backdrop-blur-md border border-slate-800/50 rounded-2xl p-5 shadow-xl shadow-black/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-black/40"></canvas>
+
+</div>
+<!-- Settings View -->
+<div id="view-settings" class="view-section hidden w-full max-w-6xl mt-10 px-4">
+    <div class="bg-slate-900/60 backdrop-blur-md border border-slate-800/50 rounded-2xl p-6 shadow-xl relative">
+
+    <!-- X Button -->
+    <button onclick="switchView('overview')"
+            class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl">
+        ✕
+    </button>
+
+    <h2 class="text-xl font-semibold mb-4">Settings</h2>
+    <div class="space-y-6 text-sm">
+
+  <!-- Rain Toggle -->
+  <div class="flex justify-between items-center">
+    <span>Rain Background</span>
+    <input type="checkbox" id="rainToggle" checked
+           class="accent-green-500 w-5 h-5">
+  </div>
+
+  <!-- Mesh Toggle -->
+  <div class="flex justify-between items-center">
+    <span>Mesh Background</span>
+    <input type="checkbox" id="meshToggle" checked
+           class="accent-green-500 w-5 h-5">
+  </div>
+
+  <!-- Auto Refresh Toggle -->
+  <div class="flex justify-between items-center">
+    <span>Auto Refresh Data</span>
+    <input type="checkbox" id="refreshToggle" checked
+           class="accent-green-500 w-5 h-5">
+  </div>
+
+</div>
+  </div>
 </div>
 
-<table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Session</th>
-<th>Hashrate</th>
-<th>Best Diff</th>
-<th>Uptime</th>
-<th>Last Seen</th>
-</tr>
-</thead>
-<tbody id="workersTable"></tbody>
-</table>
+<!-- Export View -->
+<div id="view-export" class="view-section hidden w-full max-w-6xl mt-10 px-4">
+  <div class="bg-slate-900/60 backdrop-blur-md border border-slate-800/50 rounded-2xl p-6 shadow-xl relative">
 
+    <!-- X Button -->
+    <button onclick="switchView('overview')"
+            class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl">
+      ✕
+    </button>
+
+    <h2 class="text-xl font-semibold mb-4">Export Data</h2>
+    <button onclick="exportCSV()" class="bg-green-500 text-black px-4 py-2 rounded-lg font-semibold">
+      Download CSV
+    </button>
+
+  </div>
+</div>
+<!-- Setup Modal -->
+<div id="setupModal"
+     class="fixed inset-0 bg-black/70 hidden items-center justify-center">
+
+  <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 w-96">
+
+    <h2 class="text-lg font-semibold mb-4">Miner Setup</h2>
+
+    <input id="ssid" placeholder="WiFi SSID"
+           class="w-full mb-2 bg-slate-800 rounded px-3 py-2">
+
+    <input id="password" type="password" placeholder="WiFi Password"
+           class="w-full mb-2 bg-slate-800 rounded px-3 py-2">
+
+    <input id="poolurl" value="public-pool.io"
+           class="w-full mb-2 bg-slate-800 rounded px-3 py-2">
+
+    <input id="poolport" value="21496"
+           class="w-full mb-2 bg-slate-800 rounded px-3 py-2">
+
+    <input id="btcAddress" placeholder="BTC Address"
+           class="w-full mb-2 bg-slate-800 rounded px-3 py-2">
+
+    <input id="timezone" value="2"
+           class="w-full mb-4 bg-slate-800 rounded px-3 py-2">
+
+    <div class="flex gap-3">
+      <button onclick="submitMinerConfig()"
+              class="bg-green-500 text-black px-4 py-2 rounded font-semibold w-full">
+        Save
+      </button>
+
+      <button onclick="closeSetup()"
+              class="bg-red-500 px-4 py-2 rounded font-semibold w-full">
+        Cancel
+      </button>
+    </div>
+
+    <div id="setupStatus" class="text-sm text-gray-400 mt-3"></div>
+
+  </div>
 </div>
 
 <script>
+
 let wallet = localStorage.getItem("wallet") || "";
+let hashHistory = [];
+let chart;
 
 if(wallet){
   document.getElementById("walletInput").value = wallet;
   loadData();
 }
 
-document.getElementById("walletInput").addEventListener("keydown", e=>{
-  if(e.key==="Enter") setWallet();
-});
-
 function setWallet(){
   wallet=document.getElementById("walletInput").value.trim();
-  if(!wallet) return;
   localStorage.setItem("wallet",wallet);
   loadData();
 }
 
+function openPortal(){
+  window.open("http://192.168.4.1","_blank");
+}
+
+function openSetup(){
+  document.getElementById("setupModal").classList.remove("hidden");
+  document.getElementById("setupModal").classList.add("flex");
+}
+
+function closeSetup(){
+  document.getElementById("setupModal").classList.add("hidden");
+  document.getElementById("setupModal").classList.remove("flex");
+}
+
+async function submitMinerConfig(){
+
+  const status = document.getElementById("setupStatus");
+  status.className = "text-sm text-gray-400 mt-3";
+  status.innerText = "Sending settings...";
+
+  const formData = new URLSearchParams();
+  formData.append("s",ssid.value);
+  formData.append("p",password.value);
+  formData.append("Poolurl",poolurl.value);
+  formData.append("Poolport",poolport.value);
+  formData.append("btcAddress",btcAddress.value);
+  formData.append("TimeZone",timezone.value);
+
+  try{
+    await fetch("http://192.168.4.1/wifisave",{
+      method:"POST",
+      headers:{"Content-Type":"application/x-www-form-urlencoded"},
+      body:formData
+    });
+
+    status.className = "text-sm text-green-400 mt-3";
+    status.innerText = "Saved! Miner rebooting...";
+
+  }catch{
+    status.className = "text-sm text-red-400 mt-3";
+    status.innerText = "Failed. Connect to AP mode first.";
+  }
+}
+
 function formatHash(hr){
-  hr=parseFloat(hr);
   if(hr>=1e6) return (hr/1e6).toFixed(2)+" MH/s";
   if(hr>=1e3) return (hr/1e3).toFixed(2)+" KH/s";
   return hr.toFixed(2)+" H/s";
 }
 
-function formatNetworkHash(hr){
-  hr=parseFloat(hr);
-  if(hr>=1e18) return (hr/1e18).toFixed(2)+" EH/s";
-  if(hr>=1e15) return (hr/1e15).toFixed(2)+" PH/s";
-  if(hr>=1e12) return (hr/1e12).toFixed(2)+" TH/s";
-  return hr.toFixed(2)+" H/s";
+function formatDifficultyCompact(d){
+  d=parseFloat(d);
+  if(d>=1e12) return (d/1e12).toFixed(2)+"T";
+  if(d>=1e9) return (d/1e9).toFixed(2)+"B";
+  return d.toFixed(2);
 }
 
-function formatDiff(diff){
-  diff=parseFloat(diff);
-  if(diff>=1e12) return (diff/1e12).toFixed(2)+" T";
-  if(diff>=1e9) return (diff/1e9).toFixed(2)+" B";
-  return diff.toFixed(2);
+function formatDifficultyFull(d){
+  return parseFloat(d).toLocaleString(undefined,{maximumFractionDigits:1});
 }
 
-function formatTime(sec){
-  const m=Math.floor(sec/60);
-  const s=sec%60;
-  return `${m}m ${s}s`;
+function initChart(){
+  const ctx=document.getElementById("hashChart").getContext("2d");
+  chart=new Chart(ctx,{
+    type:"line",
+    data:{labels:[],datasets:[{data:[],borderColor:"#22c55e",tension:.3}]},
+    options:{animation:false,plugins:{legend:{display:false}},scales:{x:{display:false}}}
+  });
 }
 
 async function loadBTC(){
   try{
-    const res = await fetch(
-      "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd"
-    );
-    const data = await res.json();
-    document.getElementById("btcPrice").innerText =
-      "$" + data.bitcoin.usd.toLocaleString();
-  }catch(e){
-    document.getElementById("btcPrice").innerText="--";
-    console.log("BTC error:", e);
-  }
+    const r=await fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd");
+    const d=await r.json();
+    btcPrice.innerText="$"+d.bitcoin.usd.toLocaleString();
+  }catch{}
 }
 
 async function loadData(){
   if(!wallet) return;
 
-  const CLIENT=`https://public-pool.io:40557/api/client/${wallet}`;
-  const NETWORK=`https://public-pool.io:40557/api/network`;
-
   try{
-    const c=await fetch(CLIENT).then(r=>r.json());
-    const n=await fetch(NETWORK).then(r=>r.json());
-
-    document.getElementById("bestDiff").innerText =
-      Math.ceil(parseFloat(c.bestDifficulty)*100)/100;
-
-    document.getElementById("netDiff").innerText=formatDiff(n.difficulty);
-    document.getElementById("netHash").innerText=formatNetworkHash(n.networkhashps);
-    document.getElementById("blockHeight").innerText=n.blocks;
+    const c=await fetch(`https://public-pool.io:40557/api/client/${wallet}`).then(r=>r.json());
+    const n=await fetch(`https://public-pool.io:40557/api/network`).then(r=>r.json());
 
     let total=0;
-    const table=document.getElementById("workersTable");
-    table.innerHTML="";
+    c.workers.forEach(w=>total+=parseFloat(w.hashRate));
 
-    c.workers.forEach(w=>{
-      const hr=parseFloat(w.hashRate);
-      total+=hr;
+    totalHash.innerText=formatHash(total);
+    bestDiff.innerText=parseFloat(c.bestDifficulty).toFixed(2);
+    blockHeight.innerText=n.blocks;
+    workerCount.innerText=c.workers.length;
 
-      const start=new Date(w.startTime);
+    networkDiffCompact.innerText=formatDifficultyCompact(n.difficulty);
+
+
+    const now=new Date();
+    const active=c.workers.filter(w=>{
       const last=new Date(w.lastSeen);
-      const now=new Date();
-
-      const uptime=Math.floor((now-start)/1000);
-      const lastSeen=Math.floor((now-last)/1000);
-
-      const row=document.createElement("tr");
-      row.innerHTML=`
-        <td>${w.name}</td>
-        <td>${w.sessionId}</td>
-        <td>${formatHash(hr)}</td>
-        <td>${w.bestDifficulty}</td>
-        <td>${formatTime(uptime)}</td>
-        <td class="${lastSeen>90?'offline':''}">
-          ${formatTime(lastSeen)} ago
-        </td>
-      `;
-      table.appendChild(row);
+      return ((now-last)/1000)<90 && parseFloat(w.hashRate)>0;
     });
 
-    document.getElementById("totalHash").innerText=formatHash(total);
+    if(active.length>0){
+      avgHash.innerText=formatHash(total/active.length);
+    }else{
+      avgHash.innerText="--";
+    }
 
-  }catch(err){
-    console.log("Data error:", err);
+    if(c.workers.length>0){
+      const stability=Math.round((active.length/c.workers.length)*100);
+      stabilityScore.innerText=stability+"%";
+
+      if(stability>95) stabilityScore.className="text-lg font-semibold text-green-400 mt-1";
+      else if(stability>80) stabilityScore.className="text-lg font-semibold text-amber-400 mt-1";
+      else stabilityScore.className="text-lg font-semibold text-red-400 mt-1";
+    }
+
+    hashHistory.push(total);
+    if(hashHistory.length>60) hashHistory.shift();
+    chart.data.labels=hashHistory.map((_,i)=>i);
+    chart.data.datasets[0].data=hashHistory;
+    chart.update();
+
+  }catch{}
+}
+
+async function checkMinerConnection(){
+  statusText.innerText="Checking...";
+  try{
+    await fetch("http://192.168.4.1",{mode:"no-cors"});
+    statusDot.className="w-2.5 h-2.5 rounded-full bg-green-500";
+    statusText.innerText="Connected";
+  }catch{
+    statusDot.className="w-2.5 h-2.5 rounded-full bg-red-500";
+    statusText.innerText="Not Connected";
   }
 }
 
-setInterval(loadData,10000);
+function toggleSidebar(){
+
+  const sidebar = document.getElementById("sidebar");
+  const overlay = document.getElementById("sidebarOverlay");
+
+  if(sidebar.classList.contains("-translate-x-full")){
+    sidebar.classList.remove("-translate-x-full");
+    overlay.classList.remove("hidden");
+  }else{
+    sidebar.classList.add("-translate-x-full");
+    overlay.classList.add("hidden");
+  }
+
+}
+
+document.addEventListener("keydown", e=>{
+  if(e.key==="Escape"){
+    const sidebar = document.getElementById("sidebar");
+    if(!sidebar.classList.contains("-translate-x-full")){
+      toggleSidebar();
+    }
+  }
+});
+
+function switchView(view){
+  document.querySelectorAll(".view-section").forEach(v=>v.classList.add("hidden"));
+  document.getElementById("view-" + view).classList.remove("hidden");
+  toggleSidebar();
+}
+
+function exportCSV(){
+  const rows = [
+    ["Total Hashrate", totalHash.innerText],
+    ["Best Difficulty", bestDiff.innerText],
+    ["Block Height", blockHeight.innerText],
+    ["Workers", workerCount.innerText],
+    ["BTC Price", btcPrice.innerText],
+    ["Network Difficulty", networkDiffCompact.innerText],
+    ["Avg Hash / Active", avgHash.innerText],
+    ["Stability", stabilityScore.innerText]
+  ];
+
+  let csv = "data:text/csv;charset=utf-8,";
+  rows.forEach(r=>csv+=r.join(",")+"\n");
+
+  const link=document.createElement("a");
+  link.href=encodeURI(csv);
+  link.download="nerdminer_stats.csv";
+  link.click();
+}
+
+
+/* ================= UI SETTINGS ================= */
+
+const rainToggle = document.getElementById("rainToggle");
+const meshToggle = document.getElementById("meshToggle");
+const refreshToggle = document.getElementById("refreshToggle");
+
+let refreshInterval;
+
+/* RAIN CONTROL */
+rainToggle.addEventListener("change", () => {
+  document.getElementById("rainCanvas").style.display =
+    rainToggle.checked ? "block" : "none";
+});
+
+/* MESH CONTROL */
+meshToggle.addEventListener("change", () => {
+  document.getElementById("bgCanvas").style.display =
+    meshToggle.checked ? "block" : "none";
+});
+
+/* AUTO REFRESH CONTROL */
+function startAutoRefresh(){
+  refreshInterval = setInterval(loadData, 10000);
+}
+
+function stopAutoRefresh(){
+  clearInterval(refreshInterval);
+}
+
+refreshToggle.addEventListener("change", () => {
+  if(refreshToggle.checked){
+    startAutoRefresh();
+  }else{
+    stopAutoRefresh();
+  }
+});
+
+initChart();
 loadBTC();
 setInterval(loadBTC,60000);
+startAutoRefresh();
+
 </script>
 
+
+<!-- Sidebar Overlay -->
+<div id="sidebarOverlay"
+     class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden z-40"
+     onclick="toggleSidebar()"></div>
+
+<!-- Sidebar -->
+<div id="sidebar"
+     class="fixed top-0 left-0 h-full w-72
+            bg-slate-900/80 backdrop-blur-xl
+            border-r border-slate-800/50
+            transform -translate-x-full
+            transition-all duration-300 ease-in-out
+            z-50 p-6 shadow-2xl shadow-black/40">
+
+  <!-- Logo / Title -->
+  <div class="mb-8">
+    <div class="text-xl font-semibold tracking-tight">
+      NerdMiner
+    </div>
+    <div class="text-xs text-gray-500 mt-1">
+      Lottery Dashboard
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="space-y-2 text-sm">
+
+    <button onclick="switchView('overview')" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg
+               bg-slate-800/60 text-white font-medium">
+      <span>🏠</span>
+      Overview
+    </button>
+
+    <button onclick="switchView('settings')" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg
+               text-gray-400 hover:bg-slate-800/50 hover:text-white transition">
+      <span>⚙</span>
+      Settings
+    </button>
+
+    <button onclick="switchView('export')" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg
+               text-gray-400 hover:bg-slate-800/50 hover:text-white transition">
+      <span>📁</span>
+      Export Data
+    </button>
+
+  </nav>
+
+  <!-- Divider -->
+  <div class="border-t border-slate-800/50 my-6"></div>
+
+  <!-- Footer Section -->
+  <div class="text-xs text-gray-500">
+    NerdMiner v1.0  
+    <br>
+    SaaS UI Mode
+  </div>
+
+</div>
+
+
+
+
+<canvas id="bgCanvas"
+        class="fixed inset-0 -z-10"></canvas>
+<canvas id="rainCanvas" class="fixed inset-0 -z-30 pointer-events-none"></canvas>
+<script>
+const canvas = document.getElementById("bgCanvas");
+const ctx = canvas.getContext("2d");
+
+let width, height;
+let particles = [];
+const particleCount = 70;
+const maxDistance = 130;
+
+function resize(){
+  width = canvas.width = window.innerWidth;
+  height = canvas.height = window.innerHeight;
+}
+window.addEventListener("resize", resize);
+resize();
+
+class Particle{
+  constructor(){
+    this.x = Math.random() * width;
+    this.y = Math.random() * height;
+    this.vx = (Math.random() - 0.5) * 0.4;
+    this.vy = (Math.random() - 0.5) * 0.4;
+  }
+
+  move(){
+    this.x += this.vx;
+    this.y += this.vy;
+
+    if(this.x < 0 || this.x > width) this.vx *= -1;
+    if(this.y < 0 || this.y > height) this.vy *= -1;
+  }
+
+  draw(){
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, 1.5, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(34,197,94,0.7)";
+    ctx.fill();
+  }
+}
+
+function initParticles(){
+  particles = [];
+  for(let i=0;i<particleCount;i++){
+    particles.push(new Particle());
+  }
+}
+
+function connect(){
+  for(let i=0;i<particles.length;i++){
+    for(let j=i+1;j<particles.length;j++){
+      const dx = particles[i].x - particles[j].x;
+      const dy = particles[i].y - particles[j].y;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+
+      if(dist < maxDistance){
+        ctx.beginPath();
+        ctx.moveTo(particles[i].x, particles[i].y);
+        ctx.lineTo(particles[j].x, particles[j].y);
+        ctx.strokeStyle = "rgba(34,197,94,"+(1-dist/maxDistance)*0.2+")";
+        ctx.stroke();
+      }
+    }
+  }
+}
+
+function animate(){
+  ctx.clearRect(0,0,width,height);
+
+  particles.forEach(p=>{
+    p.move();
+    p.draw();
+  });
+
+  connect();
+
+  requestAnimationFrame(animate);
+}
+
+
+/* ================= RAIN BACKGROUND ================= */
+
+const rainCanvas = document.getElementById("rainCanvas");
+const rainCtx = rainCanvas.getContext("2d");
+
+function resizeRain(){
+  rainCanvas.width = window.innerWidth;
+  rainCanvas.height = window.innerHeight;
+}
+
+window.addEventListener("resize", resizeRain);
+resizeRain();
+
+let rainDrops = [];
+const rainCount = 150;
+
+for(let i = 0; i < rainCount; i++){
+  rainDrops.push({
+    x: Math.random() * window.innerWidth,
+    y: Math.random() * window.innerHeight,
+    length: 10 + Math.random() * 20,
+    speed: 3 + Math.random() * 4
+  });
+}
+
+function animateRain(){
+  rainCtx.clearRect(0, 0, rainCanvas.width, rainCanvas.height);
+
+  rainDrops.forEach(drop => {
+    rainCtx.beginPath();
+    rainCtx.moveTo(drop.x, drop.y);
+    rainCtx.lineTo(drop.x, drop.y + drop.length);
+    rainCtx.strokeStyle = "rgba(34,197,94,0.18)";
+    rainCtx.lineWidth = 1;
+    rainCtx.stroke();
+
+    drop.y += drop.speed;
+
+    if(drop.y > rainCanvas.height){
+      drop.y = -drop.length;
+      drop.x = Math.random() * rainCanvas.width;
+    }
+  });
+
+  requestAnimationFrame(animateRain);
+}
+
+animateRain();
+
+
+initParticles();
+animate();
+</script>
+
+
+        
 </body>
 </html>
