@@ -1,0 +1,25 @@
+<svg width="1200" height="300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#020617"/>
+    </linearGradient>
+  </defs>
+  
+  <rect width="1200" height="300" fill="url(#bg)"/>
+
+  <text x="50%" y="45%" text-anchor="middle"
+        font-family="Segoe UI, Arial, sans-serif"
+        font-size="48"
+        fill="#22c55e"
+        font-weight="600">
+    NerdMiner Lottery Dashboard
+  </text>
+
+  <text x="50%" y="65%" text-anchor="middle"
+        font-family="Segoe UI, Arial, sans-serif"
+        font-size="22"
+        fill="#94a3b8">
+    Bitcoin Wallet Monitoring Interface for public-pool.io
+  </text>
+</svg>
