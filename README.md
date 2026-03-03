@@ -9,6 +9,8 @@ It provides real-time wallet statistics, network data, stability metrics, and cl
 
 🔒 No private keys 🌐 Fully front-end 📊 Real-time wallet monitoring
 
+
+
 🚀 Features 📊 Wallet Monitoring
 
 ● Total wallet hashrate
@@ -21,6 +23,8 @@ It provides real-time wallet statistics, network data, stability metrics, and cl
 
 ● Average hash per active worker
 
+
+
 🌍 Network Data
 
 ● Current block height
@@ -28,6 +32,8 @@ It provides real-time wallet statistics, network data, stability metrics, and cl
 ● Network difficulty (compact + full format)
 
 ● Live BTC price (CoinGecko API)
+
+
 
 📈 Visualization
 
@@ -38,6 +44,7 @@ It provides real-time wallet statistics, network data, stability metrics, and cl
 ● CSV export of stats
 
 ● Smooth UI transitions
+
 
 
 🎨 Interface
@@ -51,6 +58,7 @@ It provides real-time wallet statistics, network data, stability metrics, and cl
 ● Sidebar navigation
 
 ● Responsive layout
+
 
 
 📦 Deployment GitHub Pages (Recommended)
@@ -76,11 +84,17 @@ It provides real-time wallet statistics, network data, stability metrics, and cl
 ● https://yourusername.github.io/repository-name/ 
 
 
-🔧 Local Hosting (Optional) cd dashboard-folder python3 -m http.server 8080
+
+🔧 Local Hosting (Optional) 
+
+● cd dashboard-folder 
+
+● python3 -m http.server 8080
 
 ● Access via:
 
 ● http://YOUR-IP:8080 
+
 
 
 🧠 How It Works
@@ -102,6 +116,7 @@ It provides real-time wallet statistics, network data, stability metrics, and cl
 ● No backend. No database. No authentication.
 
 
+
 🔐 Security
 
 ● Read-only wallet monitoring.
@@ -111,6 +126,7 @@ It provides real-time wallet statistics, network data, stability metrics, and cl
 ● Uses public APIs only.
 
 ● Safe for public GitHub Pages deployment.
+
 
 
 🧩 Built With
