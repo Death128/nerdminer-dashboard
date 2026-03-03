@@ -1,56 +1,29 @@
-<svg width="1200" height="320" viewBox="0 0 1200 320" xmlns="http://www.w3.org/2000/svg">
+<svg width="1200" height="300" viewBox="0 0 1200 300" xmlns="http://www.w3.org/2000/svg">
 
   <defs>
-    <!-- Background Gradient -->
     <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#0f172a"/>
       <stop offset="100%" stop-color="#020617"/>
     </linearGradient>
-
-    <!-- Subtle Grid Pattern -->
-    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" stroke-width="1"/>
-    </pattern>
-
-    <!-- Accent Glow -->
-    <filter id="glow">
-      <feGaussianBlur stdDeviation="6" result="coloredBlur"/>
-      <feMerge>
-        <feMergeNode in="coloredBlur"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
   </defs>
 
-  <!-- Background -->
-  <rect width="1200" height="320" fill="url(#bg)"/>
-  <rect width="1200" height="320" fill="url(#grid)" opacity="0.25"/>
+  <rect width="1200" height="300" fill="url(#bg)" />
 
-  <!-- Accent Line -->
-  <rect x="0" y="300" width="1200" height="4" fill="#22c55e" filter="url(#glow)"/>
-
-  <!-- Main Title -->
   <text x="600" y="140"
         text-anchor="middle"
-        font-family="Segoe UI, Inter, Arial, sans-serif"
-        font-size="52"
+        font-family="Segoe UI, Arial, sans-serif"
+        font-size="48"
         font-weight="600"
         fill="#22c55e">
     NerdMiner Lottery Dashboard
   </text>
 
-  <!-- Subtitle -->
-  <text x="600" y="190"
+  <text x="600" y="185"
         text-anchor="middle"
-        font-family="Segoe UI, Inter, Arial, sans-serif"
-        font-size="22"
+        font-family="Segoe UI, Arial, sans-serif"
+        font-size="20"
         fill="#94a3b8">
     Bitcoin Wallet Monitoring Interface for public-pool.io
   </text>
-
-  <!-- Subtle Divider -->
-  <line x1="400" y1="210" x2="800" y2="210"
-        stroke="#1e293b"
-        stroke-width="1"/>
 
 </svg>
