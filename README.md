@@ -40,26 +40,26 @@ It provides real-time wallet statistics, network data, stability metrics, and cl
 
 📦 Deployment GitHub Pages (Recommended)
 
-Push repository to GitHub.
-Go to:
-Settings → Pages
-Under Source:
-Select Deploy from branch
-Choose main
-Select /root
-Save.
-Your dashboard will be available at:
-https://yourusername.github.io/repository-name/ 🔧 Local Hosting (Optional) cd dashboard-folder python3 -m http.server 8080
-Access via:
-http://YOUR-IP:8080 🧠 How It Works
-User enters a Bitcoin wallet address.
-Dashboard queries public-pool.io API.
-Network difficulty and block data are fetched.
-Hashrate is calculated from worker stats.
-Chart updates in real time.
-Stability is computed from active vs total workers.
-All processing occurs client-side.
-No backend. No database. No authentication.
+● Push repository to GitHub.
+● Go to:
+● Settings → Pages
+● Under Source:
+● Select Deploy from branch
+● Choose main
+● Select /root
+● Save.
+● Your dashboard will be available at:
+● https://yourusername.github.io/repository-name/ 🔧 Local Hosting (Optional) cd dashboard-folder python3 -m http.server 8080
+● Access via:
+● http://YOUR-IP:8080 🧠 How It Works
+● User enters a Bitcoin wallet address.
+● Dashboard queries public-pool.io API.
+● Network difficulty and block data are fetched.
+● Hashrate is calculated from worker stats.
+● Chart updates in real time.
+● Stability is computed from active vs total workers.
+● All processing occurs client-side.
+● No backend. No database. No authentication.
 
 🔐 Security
 ● Read-only wallet monitoring.
