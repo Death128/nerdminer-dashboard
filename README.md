@@ -12,9 +12,13 @@ It provides real-time wallet statistics, network data, stability metrics, and cl
 🚀 Features 📊 Wallet Monitoring
 
 ● Total wallet hashrate
+
 ● Active worker detection
+
 ● Best share difficulty tracking
+
 ● Stability percentage calculation
+
 ● Average hash per active worker
 
 🌍 Network Data
