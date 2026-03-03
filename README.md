@@ -1,4 +1,4 @@
-🎰 NerdMiner Lottery Dashboard
+
 <p align="center"> <img src="https://raw.githubusercontent.com/Death128/nerdminer-dashboard/main/assets/banner.svg" width="800"/> </p> <p align="center"> <strong>A modern Bitcoin solo mining dashboard for NerdMiner & hobby miners.</strong> </p> <p align="center"> <img src="https://img.shields.io/github/license/Death128/nerdminer-dashboard?style=for-the-badge"> <img src="https://img.shields.io/github/stars/Death128/nerdminer-dashboard?style=for-the-badge"> <img src="https://img.shields.io/github/last-commit/Death128/nerdminer-dashboard?style=for-the-badge"> <img src="https://img.shields.io/badge/status-active-brightgreen?style=for-the-badge"> <img src="https://img.shields.io/badge/frontend-vanilla%20JS-blue?style=for-the-badge"> </p>
 
 
