@@ -1,6 +1,9 @@
+<p align="center">
+  <img src="assets/banner.svg" alt="NerdMiner Lottery Dashboard Banner" width="100%">
+</p>
 
 <p align="center">
-  <img src="assets/banner.svg" width="100%" alt="NerdMiner Lottery Dashboard Banner"/>
+  A clean, client-side Bitcoin mining dashboard for monitoring wallet statistics on public-pool.io.
 </p>
 
 <p align="center">
@@ -11,142 +14,145 @@
   <img src="https://img.shields.io/badge/stack-HTML%20%7C%20TailwindCSS%20%7C%20JavaScript-blue?style=flat-square">
 </p>
 
+---
 
+## 📌 Overview
 
-✨ Overview
-NerdMiner Lottery Dashboard is a lightweight, client-side Bitcoin monitoring interface built for solo mining enthusiasts using public-pool.io.
+NerdMiner Lottery Dashboard is a lightweight, front-end web application designed to monitor Bitcoin mining statistics for a public-pool.io wallet address. The dashboard displays worker hashrate, network data, stability metrics, and live hash history — all in real-time without requiring a backend server.
 
-It provides real-time wallet statistics, network data, stability metrics, and clean hash visualization — all without requiring a backend server.
+This project is ideal for hobby miners, self-hosted setups, or any solo mining dashboard user.
 
-🔒 No private keys 🌐 Fully front-end 📊 Real-time wallet monitoring
+---
 
+## 🚀 Features
 
+### Mining Metrics
 
-🚀 Features 📊 Wallet Monitoring
+- Total wallet hashrate
+- Active worker count and activity status
+- Best share difficulty achieved
+- Average hash per active worker
+- Stability score calculation
 
-● Total wallet hashrate
+### Network Data
 
-● Active worker detection
+- Current Bitcoin block height
+- Network difficulty (formatted and compact)
+- Live Bitcoin price (via CoinGecko API)
 
-● Best share difficulty tracking
+### Visualization
 
-● Stability percentage calculation
+- Dynamic hashrate chart powered by Chart.js
+- Auto-refresh data updates
+- CSV export of milestone statistics
 
-● Average hash per active worker
+### Interface
 
+- Responsive layout with modern dark theme
+- TailwindCSS styling
+- Optional animated background effects
+- Sidebar navigation for settings and export
 
+---
 
-🌍 Network Data
+## 📁 Quick Demo
 
-● Current block height
+Access the live dashboard deployed via GitHub Pages: https://death128.github.io/nerdminer-dashboard/
 
-● Network difficulty (compact + full format)
+---
 
-● Live BTC price (CoinGecko API)
+## 🛠️ Deployment
 
+### GitHub Pages (Recommended)
 
+1. Push this repository to GitHub.
+2. Navigate to: **Settings → Pages**
+3. Under **Source**, select:
+   - Branch: `main`
+   - Folder: `/ (root)`
+4. Click **Save**.
 
-📈 Visualization
+The dashboard will be deployed at: https://YOURNAME.github.io/YOURREPONAME/
 
-● Real-time hashrate chart (Chart.js)
+---
 
-● Auto-refresh system
+### Local Hosting
 
-● CSV export of stats
+To serve the dashboard locally:
 
-● Smooth UI transitions
+```bash
+cd <your-dashboard-folder>
+python3 -m http.server 8080
+```
+- Then open in a browser: http://localhost:8080
+- Or from another device on your network: http://<YOUR_LOCAL_IP>:8080
 
+---
 
+## 📖 How It Works
 
-🎨 Interface
+- User enters a Bitcoin wallet address into the dashboard.
+- The dashboard queries the public-pool.io API for wallet and worker data.
+- Network metrics (difficulty, block height) are fetched.
+- All rendering and calculations occur client-side using JavaScript.
+- Data updates automatically at regular intervals.
 
-● Modern dark theme
+- No server logic.
+- No private keys.
+- No database.
+- No backend authentication required.
 
-● Animated mesh background
+---
 
-● Optional rain effect
+## 🔐 Security
 
-● Sidebar navigation
+This project only uses public APIs for read-only mining statistics.
+No sensitive information is requested or stored by the application.
 
-● Responsive layout
+---
 
+## 💻 Tech Stack
 
+HTML5 – Markup structure
 
-📦 Deployment GitHub Pages (Recommended)
+TailwindCSS – Styling
 
-● Push repository to GitHub.
+Vanilla JavaScript – Application logic
 
-● Go to:
+Chart.js – Charts and data visualization
 
-● Settings → Pages
+Canvas API – Background animations
 
-● Under Source:
+---
 
-● Select Deploy from branch
+## 📜 License
 
-● Choose main
+This project is licensed under the MIT License.
+See the LICENSE file for details.
 
-● Select /root
+---
 
-● Save.
+## 🧠 Notes
 
-● Your dashboard will be available at:
+This dashboard is designed for monitoring and visualization purposes only.
+Bitcoin solo mining is probabilistic and does not guarantee block rewards.
 
-● https://yourusername.github.io/repository-name/ 
+---
 
+## 🎯 Contributing
 
+Contributions, issues, and feature requests are welcome.
 
-🔧 Local Hosting (Optional) 
+Fork the repository
 
-● cd dashboard-folder 
+Create a new branch
 
-● python3 -m http.server 8080
+Submit a pull request
 
-● Access via:
+---
 
-● http://YOUR-IP:8080 
+## 📞 Contact
 
+Please open an issue on GitHub for questions or support.
 
-
-🧠 How It Works
-
-● User enters a Bitcoin wallet address.
-
-● Dashboard queries public-pool.io API.
-
-● Network difficulty and block data are fetched.
-
-● Hashrate is calculated from worker stats.
-
-● Chart updates in real time.
-
-● Stability is computed from active vs total workers.
-
-● All processing occurs client-side.
-
-● No backend. No database. No authentication.
-
-
-
-🔐 Security
-
-● Read-only wallet monitoring.
-
-● No private key storage.
-
-● Uses public APIs only.
-
-● Safe for public GitHub Pages deployment.
-
-
-
-🧩 Built With
-
-● TailwindCSS
-
-● Chart.js
-
-● Vanilla JavaScript
-
-● Canvas API animations
-
+https://github.com/Death128/nerdminer-dashboard/issues
