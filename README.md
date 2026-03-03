@@ -8,7 +8,7 @@
   <img src="https://img.shields.io/github/stars/Death128/nerdminer-dashboard?style=flat-square">
   <img src="https://img.shields.io/github/last-commit/Death128/nerdminer-dashboard?style=flat-square">
   <img src="https://img.shields.io/badge/status-active-brightgreen?style=flat-square">
-  <img src="https://img.shields.io/badge/stack-HTML%20%7C%20CSS%20%7C%20JS-blue?style=flat-square">
+  <img src="https://img.shields.io/badge/stack-HTML%20%7C%20TailwindCSS%20%7C%20JavaScript-blue?style=flat-square">
 </p>
 
 
