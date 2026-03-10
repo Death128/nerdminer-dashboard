@@ -84,8 +84,39 @@
   </div>
 
 </div>
+
+
+<!-- Block Race -->
+<div class="bg-slate-900/60 backdrop-blur-md border border-slate-800/50 rounded-2xl p-5 shadow-xl mb-6">
+
+  <div class="text-xs text-gray-400 mb-2">Block Race (Network)</div>
+
+  <div class="w-full h-3 bg-slate-800 rounded-full overflow-hidden">
+    <div id="blockRaceBar"
+         class="h-full bg-green-500 transition-all duration-500"
+         style="width:0%">
+    </div>
+  </div>
+
+  <div class="text-xs text-gray-400 mt-2">
+    Height: <span id="mempoolHeight">--</span>
+    • Last Block: <span id="lastBlockTime">--</span>
+  </div>
+
+</div>
+
+
 <div class="fixed inset-0 -z-20 bg-gradient-to-b from-slate-900 via-slate-950 to-black"></div>
 <canvas id="hashChart" class="bg-slate-900/60 backdrop-blur-md border border-slate-800/50 rounded-2xl p-5 shadow-xl shadow-black/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-black/40"></canvas>
+
+<!-- Miner Console -->
+<div class="bg-slate-900/60 backdrop-blur-md border border-slate-800/50 rounded-2xl p-5 shadow-xl mt-6">
+  <div class="text-xs text-gray-400 mb-2">Miner Console</div>
+
+  <div id="minerConsole"
+       class="bg-black text-gray-200 font-mono text-xs p-3 rounded-lg h-64 overflow-y-auto">
+  </div>
+</div>
 
 </div>
 <!-- Settings View -->
@@ -192,6 +223,9 @@ let wallet = localStorage.getItem("wallet") || "";
 let hashHistory = [];
 let chart;
 
+let lastBlockHeight = null;
+let lastBlockTimestamp = null;
+
 if(wallet){
   document.getElementById("walletInput").value = wallet;
   loadData();
@@ -266,11 +300,40 @@ function formatDifficultyFull(d){
 
 function initChart(){
   const ctx=document.getElementById("hashChart").getContext("2d");
-  chart=new Chart(ctx,{
+    chart=new Chart(ctx,{
     type:"line",
-    data:{labels:[],datasets:[{data:[],borderColor:"#22c55e",tension:.3}]},
-    options:{animation:false,plugins:{legend:{display:false}},scales:{x:{display:false}}}
-  });
+    data:{
+        labels:[],
+        datasets:[{
+        data:[],
+        borderColor:"#22c55e",
+        borderWidth:2,
+        tension:.35,
+        pointRadius:0,
+        fill:true,
+        backgroundColor:"rgba(34,197,94,0.08)"
+        }]
+    },
+    options:{
+        animation:false,
+        responsive:true,
+        plugins:{legend:{display:false}},
+        scales:{
+        x:{
+            display:false
+        },
+        y:{
+        beginAtZero:true,
+        suggestedMax:30,
+        ticks:{
+            color:"#9ca3af",
+            callback:v=>v+" MH/s"
+        },
+        suggestedMax:25
+        }
+        }
+    }
+    });
 }
 
 async function loadBTC(){
@@ -280,6 +343,50 @@ async function loadBTC(){
     btcPrice.innerText="$"+d.bitcoin.usd.toLocaleString();
   }catch{}
 }
+
+
+async function loadMempool(){
+
+  try{
+
+    const r = await fetch("https://mempool.space/api/blocks/tip/height");
+    const height = await r.text();
+
+    const block = await fetch(`https://mempool.space/api/block-height/${height}`)
+      .then(r=>r.text());
+
+    const blockData = await fetch(`https://mempool.space/api/block/${block}`)
+      .then(r=>r.json());
+
+    mempoolHeight.innerText = height;
+
+    const blockTime = new Date(blockData.timestamp * 1000);
+    lastBlockTime.innerText = blockTime.toLocaleTimeString();
+
+    if(lastBlockHeight && height > lastBlockHeight){
+
+      console.log("NEW BLOCK FOUND");
+
+      blockRaceBar.style.width = "100%";
+
+      setTimeout(()=>{
+        blockRaceBar.style.width = "0%";
+      },1500);
+
+    }
+
+    lastBlockHeight = height;
+
+    const secondsSince = (Date.now()/1000) - blockData.timestamp;
+
+    const progress = Math.min((secondsSince / 600) * 100,100);
+
+    blockRaceBar.style.width = progress + "%";
+
+  }catch{}
+
+}
+
 
 async function loadData(){
   if(!wallet) return;
@@ -291,7 +398,8 @@ async function loadData(){
     let total=0;
     c.workers.forEach(w=>total+=parseFloat(w.hashRate));
 
-    totalHash.innerText=formatHash(total);
+    total = total / 1000000; // convert H/s -> MH/s
+    totalHash.innerText = total.toFixed(2) + " MH/s";
     bestDiff.innerText=parseFloat(c.bestDifficulty).toFixed(2);
     blockHeight.innerText=n.blocks;
     workerCount.innerText=c.workers.length;
@@ -306,7 +414,7 @@ async function loadData(){
     });
 
     if(active.length>0){
-      avgHash.innerText=formatHash(total/active.length);
+      avgHash.innerText=(total/active.length).toFixed(2)+" MH/s";
     }else{
       avgHash.innerText="--";
     }
@@ -430,10 +538,33 @@ refreshToggle.addEventListener("change", () => {
   }
 });
 
+/* ================= MINER CONSOLE STREAM ================= */
+
+const consoleBox = document.getElementById("minerConsole");
+
+if(consoleBox){
+  const source = new EventSource("http://192.168.1.26:5000/minerlog");
+
+  source.onmessage = function(event){
+    consoleBox.innerHTML += event.data;
+    consoleBox.scrollTop = consoleBox.scrollHeight;
+  };
+
+  source.onerror = function(){
+    consoleBox.innerHTML += "<div style='color:#f87171'>[console disconnected]</div>";
+  };
+}
+
 initChart();
+
 loadBTC();
+loadMempool();
+
 setInterval(loadBTC,60000);
+setInterval(loadMempool,10000);
+
 startAutoRefresh();
+
 
 </script>
 
@@ -640,4 +771,3 @@ animate();
         
 </body>
 </html>
-
