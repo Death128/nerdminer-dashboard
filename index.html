@@ -109,6 +109,7 @@
 <div class="fixed inset-0 -z-20 bg-gradient-to-b from-slate-900 via-slate-950 to-black"></div>
 <canvas id="hashChart" class="bg-slate-900/60 backdrop-blur-md border border-slate-800/50 rounded-2xl p-5 shadow-xl shadow-black/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-black/40"></canvas>
 
+
 </div>
 <!-- Settings View -->
 <div id="view-settings" class="view-section hidden w-full max-w-6xl mt-10 px-4">
@@ -273,15 +274,26 @@ async function submitMinerConfig(){
 }
 
 function formatHash(hr){
-  if(hr>=1e6) return (hr/1e6).toFixed(2)+" MH/s";
-  if(hr>=1e3) return (hr/1e3).toFixed(2)+" KH/s";
-  return hr.toFixed(2)+" H/s";
+  const units = ["H/s","KH/s","MH/s","GH/s","TH/s","PH/s"];
+  let i = 0;
+
+  while(hr >= 1000 && i < units.length-1){
+    hr /= 1000;
+    i++;
+  }
+
+  return hr.toFixed(2) + " " + units[i];
 }
 
 function formatDifficultyCompact(d){
-  d=parseFloat(d);
-  if(d>=1e12) return (d/1e12).toFixed(2)+"T";
-  if(d>=1e9) return (d/1e9).toFixed(2)+"B";
+
+  d = parseFloat(d);
+
+  if(d >= 1e12) return (d/1e12).toFixed(2) + "T";
+  if(d >= 1e9) return (d/1e9).toFixed(2) + "B";
+  if(d >= 1e6) return (d/1e6).toFixed(2) + "M";
+  if(d >= 1e3) return (d/1e3).toFixed(2) + "K";
+
   return d.toFixed(2);
 }
 
@@ -318,7 +330,7 @@ function initChart(){
         suggestedMax:30,
         ticks:{
             color:"#9ca3af",
-            callback:v=>v+" MH/s"
+            callback:v=>formatHash(v)
         },
         suggestedMax:25
         }
@@ -386,12 +398,14 @@ async function loadData(){
     const c=await fetch(`https://public-pool.io:40557/api/client/${wallet}`).then(r=>r.json());
     const n=await fetch(`https://public-pool.io:40557/api/network`).then(r=>r.json());
 
-    let total=0;
-    c.workers.forEach(w=>total+=parseFloat(w.hashRate));
+    let total = 0;
+    c.workers.forEach(w => total += parseFloat(w.hashRate));
 
-    total = total / 1000000; // convert H/s -> MH/s
-    totalHash.innerText = total.toFixed(2) + " MH/s";
-    bestDiff.innerText=parseFloat(c.bestDifficulty).toFixed(2);
+    totalHash.innerText = formatHash(total);
+
+
+
+    bestDiff.innerText = formatDifficultyCompact(c.bestDifficulty);
     blockHeight.innerText=n.blocks;
     workerCount.innerText=c.workers.length;
 
@@ -404,8 +418,12 @@ async function loadData(){
       return ((now-last)/1000)<90 && parseFloat(w.hashRate)>0;
     });
 
-    if(active.length>0){
-      avgHash.innerText=(total/active.length).toFixed(2)+" MH/s";
+    if(active.length > 0){
+
+      let avg = total / active.length; // still H/s
+
+      avgHash.innerText = formatHash(avg);
+
     }else{
       avgHash.innerText="--";
     }
@@ -534,7 +552,7 @@ initChart();
 loadBTC();
 loadMempool();
 
-setInterval(loadBTC,60000);
+setInterval(loadBTC,300000);
 setInterval(loadMempool,10000);
 
 startAutoRefresh();
